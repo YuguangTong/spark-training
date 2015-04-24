@@ -49,7 +49,7 @@ class LinearClassifier(Classifier):
     Todo: Implement the forward pass of Layer1
     """
 
-    return data.map(lambda (k, (x, y)): (k, (x, [np.zeros((x.shape[0], 2))], y))) # Replace it with your code
+    return data.map(lambda (k, (x, y)): (k, (x, [linear_forward(x, self.A, self.b)], y))) # Replace it with your code
 
   def backward(self, data, count):
     """
@@ -73,8 +73,8 @@ class LinearClassifier(Classifier):
     Todo: Compute the loss
     Hint: You need to reduce the RDD from 'softmax loss layer'
     """
-    L = 0.0 # replace it with your code
- 
+    #L = 0.0 # replace it with your code
+    L = softmax.map(lambda (x, (l, df)): l).reduce(lambda a, b: a + b)
     """ regularization: loss = 1/2 * lam * sum_nk(A_nk * A_nk) """
     L += 0.5 * self.lam * np.sum(self.A * self.A) 
 
