@@ -81,14 +81,16 @@ class LinearClassifier(Classifier):
     """ 
     Todo: Implement backpropagation for Layer 1 
     """
-    
+    backward = softmax.map(lambda (X, (L, dLdl1)): linear_backward(dLdl1, X, self.A))
     """
     Todo: Calculate the gradients on A & b
     Hint: You need to reduce the RDD from 'backpropagation for Layer 1'
           Also check the output of the backward function
     """
-    dLdA = np.zeros(self.A.shape) # replace it with your code
-    dLdb = np.zeros(self.b.shape) # replace it with your code
+    dLdA = backward.map(lambda (dldx, dlda, dldb): dlda) \
+                   .reduce(lambda a, b: a + b) # replace it with your code
+    dLdb = backward.map(lambda (dldx, dlda, dldb): dldb) \
+                   .reduce(lambda a, b: a + b) # replace it with your code
 
     """ regularization gradient """
     dLdA = dLdA.reshape(self.A.shape)
