@@ -136,26 +136,52 @@ class CNNClassifier(Classifier):
     """
 
     """ TODO: Layer1: Conv (32 x 32 x 16) forward """
+    def forwardHelper1((k, (x, y))):
+      layer1, X_col1 = conv_forward(x, self.A1, self.b1, self.S1, self.P1)
+      return (k, (x, [(layer1, X_col1)], y))
+    forward1 = data.map(forwardHelper1)
 
     """ TODO: Layer2: ReLU (32 x 32 x 16) forward """
-
+    forward2 = forward1.map(lambda (k, (x, layers, y)):
+                             (k, (x, layers + [ReLU_forward(layers[0][0])], y)))
     """ DOTO: Layer3: Pool (16 x 16 x 16) forward """
-
+    def forwardHelper3((k, (x, layers, y))):
+      layer3, X_idx3 = max_pool_forward(layers[1], self.F3, self.S3)
+      return (k, (x, layers + [(layer3, X_idx3)], y))
+    forward3 = forward2.map(forwardHelper3)
     """ TODO: Layer4: Conv (16 x 16 x 20) forward """ 
-
+    def forwardHelper4((k, (x, layers, y))):
+      layer4, X_col4 = conv_forward(layers[2][0], self.A4, self.b4, self.S4, self.P4)
+      return (k, (x, layers + [(layer4, X_col4)], y))
+    forward4 = forward3.map(forwardHelper4)
     """ TODO: Layer5: ReLU (16 x 16 x 20) forward """
-
+    forward5 = forward4.map(lambda (k, (x, layers, y)):
+                            (k, (x, layers + [ReLU_forward(layers[3][0])], y)))
     """ TODO: Layer6: Pool (8 x 8 x 20) forward """ 
-
+    def forwardHelper6((k, (x, layers, y))):
+      layer6, X_idx6 = max_pool_forward(layers[4], self.F6, self.S6)
+      return (k, (x, layers + [(layer6, X_idx6)], y))
+    forward6 = forward5.map(forwardHelper6)
     """ TODO: Layer7: Conv (8 x 8 x 20) forward """ 
-
+    def forwardHelper7((k, (x, layers, y))):
+      layer7, X_col7 = conv_forward(layers[5][0], self.A7, self.b7, self.S7, self.P7)
+      return (k, (x, layers + [(layer7, X_col7)], y))
+    forward7 = forward6.map(forwardHelper7)
+    
     """ TODO: Layer8: ReLU (8 x 8 x 20) forward """ 
-
+    forward8 = forward7.map(lambda (k, (x, layers, y)):
+                            (k, (x, layers + [ReLU_forward(layers[6][0])], y)))
     """ TODO: Layer9: Pool (4 x 4 x 20) forward """ 
+    def forwardHelper9((k, (x, layers, y))):
+      layer9, X_idx9 = max_pool_forward(layers[7], self.F9, self.S9)
+      return (k, (x, layers + [(layer9, X_idx9)], y))
+    forward9 = forward8.map(forwardHelper9)
 
     """ TODO: Layer10: FC (1 x 1 x 10) forward """
-
-    return data.map(lambda (k, (x, y)): (k, (x, [(np.array([0]), np.array([0])), np.zeros((x.shape[0], 2))], y))) # replace it with your code
+    forward10 = forward9.map(lambda (k, (x, layers, y)):
+                             (k, (x, layers + [linear_forward(layers[8][0], self.A10, self.b10)], y)))
+    #return data.map(lambda (k, (x, y)): (k, (x, [(np.array([0]), np.array([0])), np.zeros((x.shape[0], 2))], y))) # replace it with your code
+    return forward10
 
   def backward(self, data, count):
     """
