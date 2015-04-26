@@ -65,7 +65,12 @@ class NNClassifier(Classifier):
     Layer 2 : ReLU
     Layer 3 : linear
     """
-    return data.map(lambda (k, (x, y)): (k, (x, [np.zeros((x.shape[0], 2))], y))) # replace it with your code
+    def helper((k, (x, y))):
+      layer1 = linear_forward(x, self.A1, self.b1)
+      layer2 = ReLU_forward(layer1)
+      layer3 = linear_forward(layer2, self.A3, self.b3)
+      return (k, (x, [layer1, layer2, layer3], y))
+    return data.map(helper) # replace it with your code
 
   def backward(self, data, count):
     """
