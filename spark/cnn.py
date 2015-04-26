@@ -210,9 +210,14 @@ class CNNClassifier(Classifier):
     L += 0.5 * self.lam * np.sum(self.A10*self.A10)
 
     """ TODO: Layer10: FC (1 x 1 x 10) Backward """
-
+    def  backHelper10((x, layers, y, (l, dldl10))):
+      dldl9, dlda10, dldb10 = linear_backard(dldl10, layers[8][0], self.A10)
+      return (x, layers, y, (dldl9, dlda10, dldb10))
+    backward10 = softmax.map(backHelper10)
     """ TODO: gradients on A10 & b10 """
-    dLdA10 = np.zeros(self.A10.shape) # replace it with your code
+    #dLdA10 = np.zeros(self.A10.shape) # replace it with your code
+    dLdA10 = backward10.map(lambda (x, layers, y, dl): dl[1]) \
+                       .reduce(lambda a, b: a + b)
     dLdb10 = np.zeros(self.b10.shape) # replace it with your code
 
     """ TODO: Layer9: Pool (4 x 4 x 20) Backward """
