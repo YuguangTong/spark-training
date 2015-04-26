@@ -241,17 +241,20 @@ class CNNClassifier(Classifier):
  
     """ TODO: Layer6: Pool (8 x 8 x 20) Backward """
     backward6 = backward7.map(lambda (x, layers, y, dl):
-                              (x, layers, y, max_pool_backward(dl[0], layers[4], layers[5]l1], self.F6, self.S6)))
+                              (x, layers, y, max_pool_backward(dl[0], layers[4], layers[5][1], self.F6, self.S6)))
     """ TODO: Layer5: ReLU (16 x 16 x 20) Backward """ 
     backward5 = backward6.map(lambda (x, layers, y, dldl5):
                               (x, layers, y, ReLU_backward(dldl5, layers[3][0])))
     """ TODO: Layer4: Conv (16 x 16 x 20) Backward """ 
     backward4 = backward5.map(lambda (x, layers, y, dldl4):
-                              (x, layers, y, conv_backward(dldl4, layers[2], layers[3][1], self.A4, self.S4, self.P4)))
+                              (x, layers, y, conv_backward(dldl4, layers[2][0], layers[3][1], self.A4, self.S4, self.P4)))
     """ TODO: gradients on A4 & b4 """
-    dLdA4 = np.zeros(self.A4.shape) # replace it with your code
-    dLdb4 = np.zeros(self.b4.shape) # replace it with your code
- 
+    #dLdA4 = np.zeros(self.A4.shape) # replace it with your code
+    dLdA4 = backward4.map(lambda (x, layers, y, dl): dl[1]) \
+                     .reduce(lambda a, b: a + b)
+    #dLdb4 = np.zeros(self.b4.shape) # replace it with your code
+    dLdb4 = backward4.map(lambda (x, layers, y, dl): dl[2]) \
+                     .reduce(lambda a, b: a + b)
     """ TODO: Layer3: Pool (16 x 16 x 16) Backward """ 
  
     """ TODO: Layer2: ReLU (32 x 32 x 16) Backward """
