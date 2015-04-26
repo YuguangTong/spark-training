@@ -82,30 +82,43 @@ class NNClassifier(Classifier):
     """ 
     TODO: Implement softmax loss layer 
     """
-    softmax = data.map(lambda (x, layers, y): (x, softmax_loss(layers[2], y))) \
-                  .map(lambda (x, (L, df)): (x, (L/count, df/count)))
+    softmax = data.map(lambda (x, layers, y): (x, layers, y, softmax_loss(layers[2], y))) \
+                  .map(lambda (x, layers, y, (L, df)): (x, layers, y, (L/count, df/count)))
     """
     TODO: Compute the loss
     """
     #L = 0.0 # replace it with your code
-    L = softmax.map(lambda (x, (l, dldl3)): l).reduce(lambda a, b: a + b)
+    L = softmax.map(lambda (x, layers, y, (l, dldl3)): l).reduce(lambda a, b: a + b)
 
     """ regularization """
     L += 0.5 * self.lam * (np.sum(self.A1*self.A1) + np.sum(self.A3*self.A3))
 
     """ Todo: Implement backpropagation for Layer 3 """
+    backward3 = softmax.map(lambda (x, layers, y, (l, dldl3)):
+                            (x, layers, y, linear_backward(dldl3, layers[1], self.A3)))
 
     """ Todo: Compute the gradient on A3 and b3 """
-    dLdA3 = np.zeros(self.A3.shape) # replace it with your code
-    dLdb3 = np.zeros(self.b3.shape) # replace it with your code
+    #dLdA3 = np.zeros(self.A3.shape) # replace it with your code
+    dLdA3 = backward3.map(lambda (x, layers, y, (dldl2, dlda3, dldb3)): dlda3) \
+                     .reduce(lambda a, b: a+b)
 
+    #dLdb3 = np.zeros(self.b3.shape) # replace it with your code
+    dLdb3 = backward3.map(lambda (x, layers, y, (dldl2, dlda3, dldb3)): dldb3) \
+                     .reduce(lambda a, b: a + b)
     """ Todo: Implement backpropagation for Layer 2 """
-
+    backward2 = backward3.map(lambda (x, layers, y, (dldl2, dlda3, dldb3)):
+                              (x, layers, y, ReLU_backward(dldl2, layers[0])))
     """ Todo: Implmenet backpropagation for Layer 1 """
+    backward1 = backward2.map(lambda (x, layers, y, dldl1):
+                              linear_backward(dldl1, x, self.A1))
 
     """ Todo: Compute the gradient on A1 and b1 """
-    dLdA1 = np.zeros(self.A1.shape) # replace it with your code
-    dLdb1 = np.zeros(self.b1.shape) # replace it with your code
+    #dLdA1 = np.zeros(self.A1.shape) # replace it with your code
+    dLdA1 = backward1.map(lambda (dldx, dlda1, dldb1): dlda1) \
+                     .reduce(lambda a, b: a + b)
+    #dLdb1 = np.zeros(self.b1.shape) # replace it with your code
+    dLdb1 = backward1.map(lambda (dldx, dlda1, dldb1): dldb1) \
+                     .reduce(lambda a, b: a + b)
 
     """ regularization gradient """
     dLdA3 = dLdA3.reshape(self.A3.shape)
