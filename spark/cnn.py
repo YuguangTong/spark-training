@@ -192,9 +192,16 @@ class CNNClassifier(Classifier):
     """
 
     """ TODO: Softmax Loss Layer """ 
+    softmax = data.map(lambda (x, layers, y):
+                       (x, layers, y, softmax_loss(layers[9], y))) \
+                  .map(lambda (x, layers, y, (l, dldl10)):
+                       (x, layers, y, (l/count, dldl10/count)))
+      
 
     """ TODO: Compute Loss """
-    L = 0.0 # replace it with your code
+    #L = 0.0 # replace it with your code
+    L = softmax.map(lambda (x, layers, y, (l, dldl10)): l) \
+               .reduce(lambda a, b: a + b)
 
     """ regularization """
     L += 0.5 * self.lam * np.sum(self.A1*self.A1)
