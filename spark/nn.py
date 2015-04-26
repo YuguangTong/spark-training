@@ -82,11 +82,13 @@ class NNClassifier(Classifier):
     """ 
     TODO: Implement softmax loss layer 
     """
-
+    softmax = data.map(lambda (x, layers, y): (x, softmax_loss(layers[2], y))) \
+                  .map(lambda (x, (L, df)): (x, (L/count, df/count)))
     """
     TODO: Compute the loss
     """
-    L = 0.0 # replace it with your code
+    #L = 0.0 # replace it with your code
+    L = softmax.map(lambda (x, (l, dldl3)): l).reduce(lambda a, b: a + b)
 
     """ regularization """
     L += 0.5 * self.lam * (np.sum(self.A1*self.A1) + np.sum(self.A3*self.A3))
