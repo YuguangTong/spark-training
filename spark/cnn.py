@@ -256,15 +256,21 @@ class CNNClassifier(Classifier):
     dLdb4 = backward4.map(lambda (x, layers, y, dl): dl[2]) \
                      .reduce(lambda a, b: a + b)
     """ TODO: Layer3: Pool (16 x 16 x 16) Backward """ 
- 
+    backward3 = backward4.map(lambda (x, layers, y, dl):
+                              (x, layers, y, max_pool_backward(dl[0], layers[1], layers[2][1], self.F3, self.S3)))
     """ TODO: Layer2: ReLU (32 x 32 x 16) Backward """
-
+    backward2 = backward3.map(lambda (x, layers, y, dldl2):
+                              (x, layers, y, ReLU_backward(dldl2, layers[0][0])))
     """ TODO: Layer1: Conv (32 x 32 x 16) Backward """
- 
+    backward1 = backward2.map(lambda (x, layers, y, dldl1):
+                              (x, layers, y, conv_backward(dldl1, x, layers[0][1], self.A1, self.S1, self.P1)))
     """ TODO: gradients on A1 & b1 """
-    dLdA1 = np.zeros(self.A1.shape) # replace it with your code
-    dLdb1 = np.zeros(self.b1.shape) # replace it with your code
-
+    #dLdA1 = np.zeros(self.A1.shape) # replace it with your code
+    dLdA1 = backward1.map(lambda (x, layers, y, dl): dl[1]) \
+                    .reduce(lambda a, b: a + b)
+    #dLdb1 = np.zeros(self.b1.shape) # replace it with your code
+    dLdb1 = backward1.map(lambda (x, layers, y, dl): dl[2]) \
+                    .reduce(lambda a, b: a + b)
     """ regularization gradient """
     dLdA10 = dLdA10.reshape(self.A10.shape)
     dLdA7 = dLdA7.reshape(self.A7.shape)
