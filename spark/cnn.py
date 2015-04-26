@@ -211,24 +211,33 @@ class CNNClassifier(Classifier):
 
     """ TODO: Layer10: FC (1 x 1 x 10) Backward """
     def  backHelper10((x, layers, y, (l, dldl10))):
-      dldl9, dlda10, dldb10 = linear_backard(dldl10, layers[8][0], self.A10)
+      dldl9, dlda10, dldb10 = linear_backward(dldl10, layers[8][0], self.A10)
       return (x, layers, y, (dldl9, dlda10, dldb10))
     backward10 = softmax.map(backHelper10)
     """ TODO: gradients on A10 & b10 """
     #dLdA10 = np.zeros(self.A10.shape) # replace it with your code
     dLdA10 = backward10.map(lambda (x, layers, y, dl): dl[1]) \
                        .reduce(lambda a, b: a + b)
-    dLdb10 = np.zeros(self.b10.shape) # replace it with your code
+    #dLdb10 = np.zeros(self.b10.shape) # replace it with your code
+    dLdb10 = backward10.map(lambda (x, layers, y, dl): dl[2]) \
+                       .reduce(lambda a, b: a + b)
 
     """ TODO: Layer9: Pool (4 x 4 x 20) Backward """
-
+    backward9 = backward10.map(lambda (x, layers, y, dl):
+                               (x, layers, y, max_pool_backward(dl[0], layers[7], layers[8][1], self.F9, self.S9)))
     """ TODO: Layer8: ReLU (8 x 8 x 20) Backward """
-
+    backward8 = backward9.map(lambda (x, layers, y, dldl8):
+                              (x, layers, y, ReLU_backward(dldl8, layers[6][0])))
     """ TODO: Layer7: Conv (8 x 8 x 20) Backward """
-
+    backward7 = backward8.map(lambda (x, layers, y, dldl7):
+                              (x, layers, y, conv_backward(dldl7, layers[5][0], layers[6][1], self.A7, self.S7, self.P7)))
     """ TODO: gradients on A7 & b7 """
-    dLdA7 = np.zeros(self.A7.shape) # replace it with your code
-    dLdb7 = np.zeros(self.b7.shape) # replace it with your code
+    #dLdA7 = np.zeros(self.A7.shape) # replace it with your code
+    dLdA7 = backward7.map(lambda (x, layers, y, dl): dl[1]) \
+                     .reduce(lambda a, b: a + b)
+    #dLdb7 = np.zeros(self.b7.shape) # replace it with your code
+    dLdb7 = backward7.map(lambda (x, layers, y, dl): dl[2]) \
+                     .reduce(lambda a, b: a + b)
  
     """ TODO: Layer6: Pool (8 x 8 x 20) Backward """
 
