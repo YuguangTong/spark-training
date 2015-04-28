@@ -1,4 +1,5 @@
 import numpy as np
+from pyspark import StorageLevel
 from abc import ABCMeta, abstractmethod
 from time import time
 
@@ -31,7 +32,7 @@ class Classifier(object):
     for i in xrange(self.iternum):
       s = time()
       """ evaluate scores """
-      f = self.forward(data).map(lambda v: v[1])
+      f = self.forward(data).map(lambda v: v[1]).persist(StorageLevel.MEMORY_AND_DISK_SER)
       """ 
       1) evaluate loss and gradients 
       2) tune the parameters
@@ -49,7 +50,9 @@ class Classifier(object):
 
     data = self.preprocess(data)
     """ evaluate the scores for test images """
-    acc = self.forward(data).map(lambda (k, (x, l, y)): np.argmax(l[-1], axis=1) == y).mean()
+    acc = self.forward(data)\
+	.map(lambda (k, (x, l, y)): (l[-1], y)).cache()\
+	.map(lambda (f, y): np.argmax(f, axis=1) == y).cache().mean()
     print '[CS61C Project 4] accuracy: %.2f' % acc
     return
 
