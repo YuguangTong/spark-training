@@ -48,8 +48,9 @@ class LinearClassifier(Classifier):
     Layer 1: linear 
     Todo: Implement the forward pass of Layer1
     """
-
-    return data.map(lambda (k, (x, y)): (k, (x, [linear_forward(x, self.A, self.b)], y))) # Replace it with your code
+    bcA = data.context.broadcast(self.A)
+    bcb = data.context.broadcast(self.b)
+    return data.map(lambda (k, (x, y)): (k, (x, [linear_forward(x, bcA.value, bcb.value)], y))) # Replace it with your code
 
   def backward(self, data, count):
     """

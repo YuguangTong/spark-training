@@ -65,10 +65,15 @@ class NNClassifier(Classifier):
     Layer 2 : ReLU
     Layer 3 : linear
     """
+    bcA1 = data.context.broadcast(self.A1)
+    bcb1 = data.context.broadcast(self.b1)
+    bcA3 = data.context.broadcast(self.A3)
+    bcb3 = data.context.broadcast(self.b3)
+
     def helper((k, (x, y))):
-      layer1 = linear_forward(x, self.A1, self.b1)
+      layer1 = linear_forward(x, bcA1.value, bcb1.value)
       layer2 = ReLU_forward(layer1)
-      layer3 = linear_forward(layer2, self.A3, self.b3)
+      layer3 = linear_forward(layer2, bcA3.value, bcb3.value)
       return (k, (x, [layer1, layer2, layer3], y))
     return data.map(helper) # replace it with your code
 
@@ -82,11 +87,16 @@ class NNClassifier(Classifier):
     """ 
     TODO: Implement softmax loss layer 
     """
+    bcA1 = data.context.broadcast(self.A1)
+    bcA3 = data.context.broadcast(self.A3)
+
     softmax = data.map(lambda (x, layers, y): (x, layers, y, softmax_loss(layers[2], y))) \
                   .map(lambda (x, layers, y, (L, df)): (x, layers, y, (L/count, df/count)))
     """
     TODO: Compute the loss
     """
+
+
     #L = 0.0 # replace it with your code
     L = softmax.map(lambda (x, layers, y, (l, dldl3)): l).reduce(lambda a, b: a + b)
 
@@ -95,7 +105,7 @@ class NNClassifier(Classifier):
 
     """ Todo: Implement backpropagation for Layer 3 """
     backward3 = softmax.map(lambda (x, layers, y, (l, dldl3)):
-                            (x, layers, y, linear_backward(dldl3, layers[1], self.A3)))
+                            (x, layers, y, linear_backward(dldl3, layers[1], bcA3.value)))
 
     """ Todo: Compute the gradient on A3 and b3 """
     #dLdA3 = np.zeros(self.A3.shape) # replace it with your code
@@ -110,7 +120,7 @@ class NNClassifier(Classifier):
                               (x, layers, y, ReLU_backward(dldl2, layers[0])))
     """ Todo: Implmenet backpropagation for Layer 1 """
     backward1 = backward2.map(lambda (x, layers, y, dldl1):
-                              linear_backward(dldl1, x, self.A1))
+                              linear_backward(dldl1, x, bcA1.value))
 
     """ Todo: Compute the gradient on A1 and b1 """
     #dLdA1 = np.zeros(self.A1.shape) # replace it with your code
