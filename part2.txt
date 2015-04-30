@@ -10,9 +10,9 @@ ec2-cnn-full   |   50000     |                    |                             
 2. Fill in the table from 10 slaves.
 Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 10000 imgs
 ----------------------------------------------------------------------------------------------------
-ec2-cnn-large  |    8000     |                    |                                |
-ec2-cnn-huge   |   20000     |                    |                                |
-ec2-cnn-full   |   50000     |                    |                                |
+ec2-cnn-large  |    8000     | 10.34              |    49.19                       | 0.994
+ec2-cnn-huge   |   20000     |  20.54             |    52.78                       | 0.926
+ec2-cnn-full   |   50000     |  57.01             |    45.11                       | 1.084
 
 3. What is the speed-up of 10 slaves over 5 slaves? What can you conclude on the data size and parallelism? 
 Is this a case of strong scaling or weak scaling?
