@@ -3,24 +3,30 @@
 1. Fill in the table from 5 slaves.
 Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 50000 imgs
 ----------------------------------------------------------------------------------------------------
-ec2-cnn-large  |    8000     |       16.67        |    26.72                       |  0.998
-ec2-cnn-huge   |   20000     |       34.13        |    30.86                       |  0.864
-ec2-cnn-full   |   50000     |       129.97       |    19.67                       |  1.356
+ec2-cnn-large  |    8000     |       16.67        |    26.72                       | 5.24
+ec2-cnn-huge   |   20000     |       34.13        |    30.86                       | 4.53
+ec2-cnn-full   |   50000     |       129.97       |    19.67                       | 7.11
 
 2. Fill in the table from 10 slaves.
 Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 50000 imgs
 ----------------------------------------------------------------------------------------------------
-ec2-cnn-large  |    8000     | 10.34              |    49.19                       | 0.994
-ec2-cnn-huge   |   20000     |  20.54             |    52.78                       | 0.926
-ec2-cnn-full   |   50000     |  57.01             |    45.11                       | 1.084
+ec2-cnn-large  |    8000     | 10.34              |    49.19                       | 5.27
+ec2-cnn-huge   |   20000     |  20.54             |    52.78                       | 4.86
+ec2-cnn-full   |   50000     |  57.01             |    45.11                       | 5.68
 
 3. What is the speed-up of 10 slaves over 5 slaves? What can you conclude on the data size and parallelism? 
 Is this a case of strong scaling or weak scaling?
 Benchmark      | # of Images |      speed-up      |
 ---------------------------------------------------
-ec2-cnn-large  |    8000     |                    |                         
-ec2-cnn-huge   |   20000     |                    |                         
-ec2-cnn-full   |   50000     |                    |                         
+ec2-cnn-large  |    8000     |       1.61         |                         
+ec2-cnn-huge   |   20000     |       1.66         |                         
+ec2-cnn-full   |   50000     |       2.28         |                         
+
+Strong scaling. We fix problem size and see how the solution time vary with number of processors.
 
 4. How many dollars in EC2 credits did you use to complete this project?
+
+We used ~1.3 hr for 5 slaves case and ~ 2.6 hr for 10 slaves. 
+We spent ~$(1.3 * 6 * 1.68 + 2.6 * 11 * 1.68 )
+   	 ~$61 on proj4-part2
 
