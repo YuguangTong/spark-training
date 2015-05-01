@@ -3,9 +3,9 @@
 1. Fill in the table from 5 slaves.
 Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 10000 imgs
 ----------------------------------------------------------------------------------------------------
-ec2-cnn-large  |    8000     |                    |                                |
-ec2-cnn-huge   |   20000     |                    |                                |
-ec2-cnn-full   |   50000     |                    |                                |
+ec2-cnn-large  |    8000     |       16.67        |    26.72                       |  0.998
+ec2-cnn-huge   |   20000     |       34.13        |    30.86                       |  0.864
+ec2-cnn-full   |   50000     |       129.97       |    19.67                       |  1.356
 
 2. Fill in the table from 10 slaves.
 Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 10000 imgs
